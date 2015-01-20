@@ -23,7 +23,10 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime, 
+        dtCount = 0, //Used for adding gems
+        gameOver = 1; //Used to stop the game
+
 
     canvas.width = 505;
     canvas.height = 606;
@@ -39,23 +42,32 @@ var Engine = (function(global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
-        var now = Date.now(),
-            dt = (now - lastTime) / 1000.0;
+         if (!gameOver) {
+            var now = Date.now(),
+                dt = (now - lastTime) / 1000.0;
 
-        /* Call our update/render functions, pass along the time delta to
-         * our update function since it may be used for smooth animation.
-         */
-        update(dt);
-        render();
+            /* Call our update/render functions, pass along the time delta to
+             * our update function since it may be used for smooth animation.
+             */
+            update(dt);
+            render();
 
-        /* Set our lastTime variable which is used to determine the time delta
-         * for the next time this function is called.
-         */
-        lastTime = now;
+            /* Set our lastTime variable which is used to determine the time delta
+             * for the next time this function is called.
+             */
+            lastTime = now;
 
-        /* Use the browser's requestAnimationFrame function to call this
-         * function again as soon as the browser is able to draw another frame.
-         */
+            //increment dtCount
+            dtCount++;
+
+            /* Use the browser's requestAnimationFrame function to call this
+             * function again as soon as the browser is able to draw another frame.
+             */
+
+         }
+         else {
+            gameStats.renderScore();
+         }
         win.requestAnimationFrame(main);
     };
 
@@ -81,6 +93,11 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
+        //add gems every 300 iterations
+        if (dtCount >=300) {
+            addGem();
+            dtCount = 0;
+        }
     }
 
     /* This is called by the update function  and loops through all of the
@@ -94,7 +111,10 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        //player.update();  --Not necesary to call this function here
+        allGems.forEach(function(gem) {
+            gem.update();
+        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -136,7 +156,6 @@ var Engine = (function(global) {
             }
         }
 
-
         renderEntities();
     }
 
@@ -152,30 +171,51 @@ var Engine = (function(global) {
             enemy.render();
         });
 
-        player.render(); 
+        player.render();
+
+        allGems.forEach(function(gem) {
+            gem.render();
+        });
+
+        gameStats.render();
     }
 
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
-     //puts the player back to original position
+
+     // Restarts the game, puts the player back to original position and resets the score
     function reset() {
-        player.x = 202;
-        player.y = 390;
-        player.row = 5;
+        gameOver = 0;
+        player.resetPosition();
+        gameStats.reset();
     }
 
+    /* This function checks for collision with enemies and gems.  It uses
+     * the row and column properties of the player to check if there has 
+     * been any collisions 
+     */
     function checkCollisions() {
-        var collision = false;
+        //loop through the enemy array to detect collisions
         allEnemies.forEach(function(enemy) {
             if (player.row === enemy.row) {
-                if (player.x > (enemy.x + 50) || (player.x + 25) < enemy.x){             
+                if (player.x > (enemy.x + 50) || (player.x + 50) < enemy.x){
+                    //no collision, do nothing
                 }
                 else {
-                    reset(); 
+                    gameStats.updateLives(-1);
+                    if (gameStats.lives < 1) {
+                        gameOver = 1;
+                    }
+                    else {
+                        player.resetPosition();
+                    }
                 }
             };
+        });
+        //loop through the gem array to detect collisions
+        allGems.forEach(function(gem) {
+            if(player.row === gem.row && player.col === gem.col) {
+                gameStats.updateScore(gem.points);
+                gem.destroy();
+            }
         });
     }
 
@@ -188,7 +228,10 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png'
     ]);
     Resources.onReady(init);
 
@@ -198,3 +241,7 @@ var Engine = (function(global) {
      */
     global.ctx = ctx;
 })(this);
+
+function resetGame() {
+    console.log(engine);
+}
