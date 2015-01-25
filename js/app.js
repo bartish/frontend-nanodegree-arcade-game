@@ -156,14 +156,18 @@ GameStats.prototype.reset = function() {
 //draw the game stats on the top of the screen
 // code from http://stackoverflow.com/questions/5573594/draw-text-on-top-of-rectangle
 GameStats.prototype.render = function() {
-
+    ctx.textAlign = 'left';
     ctx.font = "18pt Arial";
     ctx.fillStyle = "#fff";
     ctx.lineWidth = 0.2;
     ctx.fillRect(200, 20, 300, 30);
-    ctx.fillStyle = "#f80";
+    ctx.fillStyle = "#000";
     ctx.fillText("Score: " + this.score, 350, 40);
     ctx.fillText("Lives: " + this.lives, 250, 40);
+
+    ctx.fillStyle = "#f80";
+    ctx.fillText("Score: " + this.score, 351, 40);
+    ctx.fillText("Lives: " + this.lives, 251, 40);
 }
 
 // render the score once the game is over
@@ -173,12 +177,18 @@ GameStats.prototype.renderFinalScore = function() {
 
     ctx.fillStyle = '#f80';
     ctx.fillText("Game Over", ctx.canvas.width/2, 120);
+    ctx.fillStyle = '#000';
+    ctx.fillText("Game Over", ctx.canvas.width/2 + 2, 120);
 
-    ctx.font = "bold 24pt Arial";
-    ctx.fillText("Final Score was:" + this.score + " points.", ctx.canvas.width/2, 180);
-    
+    ctx.font = "bold 22pt Arial";
+    ctx.fillText("Final Score was: " + this.score + " points.", ctx.canvas.width/2, 180);
+    ctx.fillStyle = '#f80';
+     ctx.fillText("Final Score was: " + this.score + " points.", ctx.canvas.width/2 + 2, 180);
+
+    ctx.fillStyle = '#000';
+    ctx.fillText('Press the Spacebar to Play Again', ctx.canvas.width/2, 450);
     ctx.fillStyle = '#f00';
-    ctx.fillText('Press an Arrow to Play Again', ctx.canvas.width/2, 450);
+    ctx.fillText('Press the Spacebar to Play Again', ctx.canvas.width/2 + 2, 450);
 
 } 
 
@@ -223,15 +233,18 @@ document.addEventListener('keyup', function(e) {
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down'
+        40: 'down',
+        32: 'spacebar'
     };
 
-    // If the Game is over - arrow keys will reset the game
-    if (gameStats.gameOver === true) {
+    /* Spacebar will reset the game at any time
+     * Arrow keys will only be sent if the game is active
+    */
+    if (allowedKeys[e.keyCode]==='spacebar') {
         player.reset();
         gameStats.reset();
     }
-    else {
+    else if (gameStats.gameOver === false) {
         player.handleInput(allowedKeys[e.keyCode]);
     }
 });
