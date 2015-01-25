@@ -72,7 +72,7 @@ Player.prototype.update = function(movex, movey, addrow, addcol) {
     //give 50 points if the player gets to the water.  Then reset the player's position.
     if (this.row === 0) {
         gameStats.updateScore(50);
-        this.resetPosition();
+        this.reset();
     };
 }
 
@@ -96,11 +96,11 @@ Player.prototype.handleInput = function(keycode) {
     }
 }
 
-Player.prototype.resetPosition = function() {
-        this.x = 202;
-        this.y = 390;
-        this.row = 5;
-        this.col = 2;
+Player.prototype.reset = function() {
+    this.x = 202;
+    this.y = 390;
+    this.row = 5;
+    this.col = 2;    
 }
 
 var Gem = function(sprite, points, keep, x, y, col, row) {
@@ -136,6 +136,7 @@ Gem.prototype.destroy = function() {
 var GameStats = function() {
     this.score = 0;
     this.lives = 3;
+    this.gameOver = false;
 }
 
 GameStats.prototype.updateScore = function(points)  {
@@ -149,11 +150,13 @@ GameStats.prototype.updateLives = function(lives) {
 GameStats.prototype.reset = function() {
     this.score = 0;
     this.lives = 3;
+    this.gameOver = false;
 }
 
 //draw the game stats on the top of the screen
 // code from http://stackoverflow.com/questions/5573594/draw-text-on-top-of-rectangle
 GameStats.prototype.render = function() {
+
     ctx.font = "18pt Arial";
     ctx.fillStyle = "#fff";
     ctx.lineWidth = 0.2;
@@ -164,14 +167,20 @@ GameStats.prototype.render = function() {
 }
 
 // render the score once the game is over
-GameStats.prototype.renderScore = function() {
-    ctx.font = "50pt Arial";
-    ctx.fillStyle = "#f80";
-    ctx.fillText("Game Over", 80, 120);
-    ctx.font = "24pt Arial";
-    ctx.fillStyle = "#f80";
-    ctx.fillText("Final Score was:" + this.score + " points.", 60, 180);
-}
+GameStats.prototype.renderFinalScore = function() {
+    ctx.font = 'bold 50pt Arial';
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#f80';
+    ctx.fillText("Game Over", ctx.canvas.width/2, 120);
+
+    ctx.font = "bold 24pt Arial";
+    ctx.fillText("Final Score was:" + this.score + " points.", ctx.canvas.width/2, 180);
+    
+    ctx.fillStyle = '#f00';
+    ctx.fillText('Press an Arrow to Play Again', ctx.canvas.width/2, 450);
+
+} 
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -217,7 +226,14 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    // If the Game is over - arrow keys will reset the game
+    if (gameStats.gameOver === true) {
+        player.reset();
+        gameStats.reset();
+    }
+    else {
+        player.handleInput(allowedKeys[e.keyCode]);
+    }
 });
 
 //returns a random row containing y position and row number

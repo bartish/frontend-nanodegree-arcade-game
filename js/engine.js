@@ -24,8 +24,7 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime, 
-        dtCount = 0, //Used for adding gems
-        gameOver = 1; //Used to stop the game
+        dtCount = 0; //Used for adding gems
 
 
     canvas.width = 505;
@@ -42,7 +41,6 @@ var Engine = (function(global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
-         if (!gameOver) {
             var now = Date.now(),
                 dt = (now - lastTime) / 1000.0;
 
@@ -64,10 +62,6 @@ var Engine = (function(global) {
              * function again as soon as the browser is able to draw another frame.
              */
 
-         }
-         else {
-            gameStats.renderScore();
-         }
         win.requestAnimationFrame(main);
     };
 
@@ -91,12 +85,14 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        updateEntities(dt);
-        checkCollisions();
-        //add gems every 300 iterations
-        if (dtCount >=300) {
-            addGem();
-            dtCount = 0;
+        if(gameStats.gameOver ===false) {
+            updateEntities(dt);
+            checkCollisions();
+            //add gems every 300 iterations
+            if (dtCount >=300) {
+                addGem();
+                dtCount = 0;
+            }
         }
     }
 
@@ -108,13 +104,15 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
-        });
-        //player.update();  --Not necesary to call this function here
-        allGems.forEach(function(gem) {
-            gem.update();
-        });
+        if(gameStats.gameOver === false) {
+            allEnemies.forEach(function(enemy) {
+                enemy.update(dt);
+            });
+            //player.update();  --Not necesary to call this function here
+            allGems.forEach(function(gem) {
+                gem.update();
+            });
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -155,8 +153,12 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
+        
         renderEntities();
+
+        if (gameStats.gameOver === true) {
+            gameStats.renderFinalScore();
+        }
     }
 
     /* This function is called by the render function and is called on each game
@@ -183,8 +185,8 @@ var Engine = (function(global) {
 
      // Restarts the game, puts the player back to original position and resets the score
     function reset() {
-        gameOver = 0;
-        player.resetPosition();
+        gameStats.gameOver = false;
+        player.reset();
         gameStats.reset();
     }
 
@@ -202,14 +204,15 @@ var Engine = (function(global) {
                 else {
                     gameStats.updateLives(-1);
                     if (gameStats.lives < 1) {
-                        gameOver = 1;
+                        gameStats.gameOver = true;
                     }
                     else {
-                        player.resetPosition();
+                        player.reset();
                     }
                 }
             };
         });
+        
         //loop through the gem array to detect collisions
         allGems.forEach(function(gem) {
             if(player.row === gem.row && player.col === gem.col) {
@@ -242,6 +245,3 @@ var Engine = (function(global) {
     global.ctx = ctx;
 })(this);
 
-function resetGame() {
-    console.log(engine);
-}
