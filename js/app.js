@@ -79,6 +79,7 @@ Player.prototype.update = function(movex, movey, addrow, addcol) {
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
+
 Player.prototype.handleInput = function(keycode) {
     switch (keycode) {
         case 'left':
@@ -96,6 +97,7 @@ Player.prototype.handleInput = function(keycode) {
     }
 }
 
+// puts the player back at the starting position
 Player.prototype.reset = function() {
     this.x = 202;
     this.y = 390;
@@ -103,6 +105,9 @@ Player.prototype.reset = function() {
     this.col = 2;    
 }
 
+/* Gem ojbect holds information regarding point value, how long to stay on the board,
+ * how long its been on the board, x and y positions, column and row
+ */
 var Gem = function(sprite, points, keep, x, y, col, row) {
     this.sprite = sprite;
     this.points = points;
@@ -115,12 +120,13 @@ var Gem = function(sprite, points, keep, x, y, col, row) {
 } 
 
 Gem.prototype.render = function() {
-    //draw the gem on the screen
-    //set the size of the gem image so it is smaller than the actual image
+    /* Draw the gem on the screen
+     * Set the size of the gem image so it is smaller than the actual image
+     */
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 90, 90);
 }
 
-//once the gem reachvnes its time alotted, remove it from the board
+//once the gem reaches its time alotted, remove it from the board
 Gem.prototype.update = function() {
     this.shownfor++;
     if (this.shownfor >= this.keepfor) {
@@ -133,6 +139,7 @@ Gem.prototype.destroy = function() {
     allGems.splice(this,1);
 }
 
+// The GameStats object keeps track of score, lives and if the game is active
 var GameStats = function() {
     this.score = 0;
     this.lives = 3;
@@ -153,8 +160,12 @@ GameStats.prototype.reset = function() {
     this.gameOver = false;
 }
 
-//draw the game stats on the top of the screen
-// code from http://stackoverflow.com/questions/5573594/draw-text-on-top-of-rectangle
+/* Draw the game stats on the top of the screen
+ * Portions of this code were taken 
+ * from http://stackoverflow.com/questions/5573594/draw-text-on-top-of-rectangle
+ * First draw the rectangle to clear the previous score/lives
+ * Next draw the current score/ lives
+ */
 GameStats.prototype.render = function() {
     ctx.textAlign = 'left';
     ctx.font = "18pt Arial";
@@ -170,7 +181,9 @@ GameStats.prototype.render = function() {
     ctx.fillText("Lives: " + this.lives, 251, 40);
 }
 
-// render the score once the game is over
+/* Render the score once the game is over
+ * Draw the text twice to give a shadow
+ */
 GameStats.prototype.renderFinalScore = function() {
     ctx.font = 'bold 50pt Arial';
     ctx.textAlign = 'center';
@@ -239,7 +252,7 @@ document.addEventListener('keyup', function(e) {
 
     /* Spacebar will reset the game at any time
      * Arrow keys will only be sent if the game is active
-    */
+     */
     if (allowedKeys[e.keyCode]==='spacebar') {
         player.reset();
         gameStats.reset();
@@ -269,8 +282,8 @@ function getRandomGem() {
     return gemList[randomGem];
 }
 
+// Adds a new gem to the screen
 function addGem() {
-
     var gem = getRandomGem();
     var row = getRandomRow();
     var col = getRandomColumn();

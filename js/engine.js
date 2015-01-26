@@ -156,6 +156,7 @@ var Engine = (function(global) {
         
         renderEntities();
 
+        // Once the game is over - show the Final Score
         if (gameStats.gameOver === true) {
             gameStats.renderFinalScore();
         }
@@ -166,7 +167,8 @@ var Engine = (function(global) {
      * on your enemy and player entities within app.js
      */
     function renderEntities() {
-        /* Loop through all of the objects within the allEnemies array and call
+        /* Loop through all of the objects within the allEnemies array,
+         * the player, gems and game stats, array and call
          * the render function you have defined.
          */
         allEnemies.forEach(function(enemy) {
@@ -183,7 +185,7 @@ var Engine = (function(global) {
     }
 
 
-     // Restarts the game, puts the player back to original position and resets the score
+     // Restarts the game, puts the player back to original position and resets the score/lives
     function reset() {
         gameStats.gameOver = false;
         player.reset();
@@ -197,11 +199,12 @@ var Engine = (function(global) {
     function checkCollisions() {
         //loop through the enemy array to detect collisions
         allEnemies.forEach(function(enemy) {
-            if (player.row === enemy.row) {
+            if (player.row === enemy.row) { 
                 if (player.x > (enemy.x + 50) || (player.x + 50) < enemy.x){
                     //no collision, do nothing
                 }
                 else {
+                    //reduce lives by 1, end game if lives = 0
                     gameStats.updateLives(-1);
                     if (gameStats.lives < 1) {
                         gameStats.gameOver = true;
@@ -212,7 +215,7 @@ var Engine = (function(global) {
                 }
             };
         });
-        
+
         //loop through the gem array to detect collisions
         allGems.forEach(function(gem) {
             if(player.row === gem.row && player.col === gem.col) {
