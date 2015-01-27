@@ -199,7 +199,7 @@ var Engine = (function(global) {
     function checkCollisions() {
         //loop through the enemy array to detect collisions
         allEnemies.forEach(function(enemy) {
-            if (player.row === enemy.row) { 
+            if (player.row === enemy.row) {
                 if (player.x > (enemy.x + 50) || (player.x + 50) < enemy.x){
                     //no collision, do nothing
                 }

@@ -59,13 +59,13 @@ var Player = function() {
 Player.prototype.update = function(movex, movey, addrow, addcol) {
 
     //check that moving left/right doesn't move off the board
-    if (this.x + movex >=0 && this.x + movex <= 404) { 
+    if (this.x + movex >=0 && this.x + movex <= 404) {
         this.x = this.x + movex;
         this.col = this.col + addcol;
     };
 
     //check that moving up.down doesn't move off the board
-    if (this.row + addrow >= 0 && this.row + addrow <=5) { 
+    if (this.row + addrow >= 0 && this.row + addrow <=5) {
         this.y = this.y + movey;
         this.row = this.row + addrow;
     }
@@ -102,7 +102,7 @@ Player.prototype.reset = function() {
     this.x = 202;
     this.y = 390;
     this.row = 5;
-    this.col = 2;    
+    this.col = 2;
 }
 
 /* Gem ojbect holds information regarding point value, how long to stay on the board,
@@ -203,7 +203,7 @@ GameStats.prototype.renderFinalScore = function() {
     ctx.fillStyle = '#f00';
     ctx.fillText('Press the Spacebar to Play Again', ctx.canvas.width/2 + 2, 450);
 
-} 
+}
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
